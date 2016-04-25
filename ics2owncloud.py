@@ -9,6 +9,7 @@ import sys
 import requests
 from icalendar.cal import Calendar
 
+from datetime import date
 
 CALDAVURL = '%sremote.php/dav/calendars/%s/%s'
 
@@ -28,6 +29,12 @@ def do_import(username, password, calendar, server, ics_url):
     return
 
   existing_uids = [e['UID'].to_ical() for e in target_cal.walk('VEVENT')]
+
+  # replace markers
+  today = date.today()
+  ics_url = ics_url.replace('###YEAR###', today.strftime("%Y"))
+  ics_url = ics_url.replace('###YEAR+1###', date(today.year + 1, today.month, today.day).strftime("%Y"))
+  print('Used ics_url: %s' % (ics_url))
 
   # fetch webcal
   c = Calendar.from_ical(requests.get(ics_url).text)
